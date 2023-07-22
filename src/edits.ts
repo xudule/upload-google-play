@@ -54,6 +54,8 @@ export async function runUpload(
 
     const authClient = await auth.getClient();
 
+    console.log(`Start uploading to the Play Store`)
+
     const result = await uploadToPlayStore({
         auth: authClient,
         applicationId: packageName,
@@ -77,8 +79,10 @@ export async function runUpload(
 async function uploadToPlayStore(options: EditOptions, releaseFiles: string[]): Promise<string | void> {
     const internalSharingDownloadUrls: string[] = []
     
+    console.log(`Hey...`)
     // Check the 'track' for 'internalsharing', if so switch to a non-track api
     if (options.track === 'internalsharing') {
+        console.log(`Hey...`)
         core.debug("Track is Internal app sharing, switch to special upload api")
         for (const releaseFile of releaseFiles) {
             core.debug(`Uploading ${releaseFile}`);
@@ -86,15 +90,19 @@ async function uploadToPlayStore(options: EditOptions, releaseFiles: string[]): 
             internalSharingDownloadUrls.push(url)
         }
     } else {
+        console.log(`Hey...`)
         // Create a new Edit
         const appEditId = await getOrCreateEdit(options)
 
+        console.log(`Hey...`)
         // Validate the given track
         await validateSelectedTrack(appEditId, options)
 
+        console.log(`Hey...`)
         // Upload artifacts to Google Play, and store their version codes
         const versionCodes = await uploadReleaseFiles(appEditId, options, releaseFiles)
 
+        console.log(`Hey...`)
         // Infer the download URL from the version codes
         for (const versionCode of versionCodes) {
             const url = inferInternalSharingDownloadUrl(options.applicationId, versionCode);
@@ -103,9 +111,11 @@ async function uploadToPlayStore(options: EditOptions, releaseFiles: string[]): 
             internalSharingDownloadUrls.push(url);
         }
 
+        console.log(`Hey...`)
         // Add the uploaded artifacts to the Edit track
         await addReleasesToTrack(appEditId, options, versionCodes);
 
+        console.log(`Hey...`)
         // Commit the pending Edit
         core.info(`Committing the Edit`)
         const res = await androidPublisher.edits.commit({
@@ -117,16 +127,20 @@ async function uploadToPlayStore(options: EditOptions, releaseFiles: string[]): 
 
         // Simple check to see whether commit was successful
         if (res.data.id) {
+            console.log(`Hey...`)
             core.info(`Successfully committed ${res.data.id}`);
             return res.data.id
         } else {
+            console.log(`Hey...`)
             core.setFailed(`Error ${res.status}: ${res.statusText}`);
             return Promise.reject(res.status);
         }
     }
 
     core.setOutput("internalSharingDownloadUrls", internalSharingDownloadUrls);
+    console.log(`Hey...`)
     core.exportVariable("INTERNAL_SHARING_DOWNLOAD_URLS", internalSharingDownloadUrls);    
+    console.log(`Hey...`)
 }
 
 async function uploadInternalSharingRelease(options: EditOptions, releaseFile: string): Promise<string> {

@@ -89,7 +89,7 @@ export async function run() {
         if (error instanceof Error) {
             core.setFailed(error.message)
         } else {
-            core.warning(error)
+            console.log(`Try to show error ${error}`)
             core.setFailed('Unknown error occurred.')
         }
     } finally {
